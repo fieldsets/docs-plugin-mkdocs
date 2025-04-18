@@ -1,0 +1,7 @@
+config.json
+nohup.out
+
+.env
+docs/*
+!docs
+!docs/README.md

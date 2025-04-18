@@ -1,0 +1,4 @@
+{
+    "packages":["python3","mkdocs","mkdocs-material","mkdocs-material-extensions"],
+    "containers": ["fieldsets-local"]
+}

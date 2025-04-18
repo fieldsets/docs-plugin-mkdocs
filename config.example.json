@@ -1,0 +1,15 @@
+{
+    "sites": [
+        {
+            "name": "Fieldsets Documentation",
+            "app_path": "fieldsets-docs",
+            "source_path": "docs",
+            "build_path": "build",
+            "config_file": "mkdocs.yml",
+            "theme": "material",
+            "host": "localhost:8000",
+            "uri": "docs",
+            "server": true
+        }
+    ]
+}
