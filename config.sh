@@ -26,7 +26,7 @@ if (Test-Path -Path "$($plugin_path)/config.json") {
         $site_configs = $config['sites']
         foreach ($site_config in $site_configs) {
             Set-Location -Path $app_path
-            if ($site_config -contains 'app_path') {
+            if ($site_config.ContainsKey('app_path')) {
                 $site_path = $site_config.('app_path')
                 if (!(Test-Path -Path "$($app_path)/$($site_path)")) {
                     $processOptions = @{
@@ -40,20 +40,20 @@ if (Test-Path -Path "$($plugin_path)/config.json") {
                 }
                 Set-Location -Path "$($app_path)/$($site_path)"
                 $config_file = 'mkdocs.yml'
-                if ($site_config -contains 'config_file') {
+                if ($site_config.ContainsKey('config_file')) {
                     $config_file = $site_config.('config_file')
                 }
                 if (!(Test-Path -Path "$($app_path)/$($site_path)/$($config_file)")) {
                     New-Item -Path "$($app_path)/$($site_path)" -Name "$($config_file)" -ItemType File | Out-Null
                     $site_name = $site_path
-                    if ($site_config -contains 'name') {
+                    if ($site_config.ContainsKey('name')) {
                         $site_name = $site_config.('name')
                     }
                     "site_name: $($site_name)`n" | Out-File -FilePath "$($app_path)/$($site_path)/$($config_file)" -Append -Encoding utf8
 
                     $site_url = "localhost:8000/$($site_path)"
-                    if ($site_config -contains 'host') {
-                        if ($site_config -contains 'uri') {
+                    if ($site_config.ContainsKey('host')) {
+                        if ($site_config.ContainsKey('uri')) {
                             $site_url = "$($site_config.('host'))/$($site_config.('uri'))"
                         } else {
                             $site_url = "$($site_config.('host'))/$($site_path)"
@@ -62,20 +62,22 @@ if (Test-Path -Path "$($plugin_path)/config.json") {
                     "site_url: $($site_url)`n" | Out-File -FilePath "$($app_path)/$($site_path)/$($config_file)" -Append -Encoding utf8
 
                     $docs_dir = "$($app_path)/$($site_path)/docs"
-                    if ($site_config -contains 'source_path') {
-                        $docs_dir = "$($app_path)/$($site_path)/$site_config.('source_path')"
+                    if ($site_config.ContainsKey('source_path')) {
+                        $docs_dir = "$($app_path)/$($site_path)/$($site_config.('source_path'))"
                     }
                     "docs_dir: $($docs_dir)`n" | Out-File -FilePath "$($app_path)/$($site_path)/$($config_file)" -Append -Encoding utf8
 
                     $site_dir = "$($app_path)/$($site_path)/site"
-                    if ($site_config -contains 'build_path') {
-                        $docs_dir = "$($app_path)/$($site_path)/$site_config.('build_path')"
+                    if ($site_config.ContainsKey('build_path')) {
+                        $docs_dir = "$($app_path)/$($site_path)/$($site_config.('build_path'))"
                     }
                     "site_dir: $($site_dir)`n" | Out-File -FilePath "$($app_path)/$($site_path)/$($config_file)" -Append -Encoding utf8
                 }
             }
         }
     }
+} else {
+    Write-Output "Missing config.json file for plugin: $($plugin_token)"
 }
 Set-Location -Path $app_path
 

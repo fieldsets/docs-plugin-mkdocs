@@ -30,16 +30,16 @@ if ($preimport) {
         if ($config.ContainsKey('sites')) {
             $site_configs = $config['sites']
             foreach ($site_config in $site_configs) {
-                if ($site_config -contains 'app_path') {
+                if ($site_config.ContainsKey('app_path')) {
                     $site_path = $site_config.('app_path')
                     Set-Location -Path "$($app_path)/$($site_path)"
                     $source_dir = 'docs'
                     $build_dir = 'build'
 
-                    if ($site_config -contains 'source_path') {
+                    if ($site_config.ContainsKey('source_path')) {
                         $source_dir = $site_config.('source_path')
                     }
-                    if ($site_config -contains 'build_path') {
+                    if ($site_config.ContainsKey('build_path')) {
                         $build_dir = $site_config.('build_path')
                     }
 
@@ -51,17 +51,17 @@ if ($preimport) {
                     # Only buuild if source path exists
                     if (Test-Path -Path "$($app_path)/$($site_path)/$($source_dir)") {
                         $build_options = '--use-directory-urls'
-                        if ($site_config -contains 'options') {
+                        if ($site_config.ContainsKey('options')) {
                             $build_options = $site_config.('options')
                         }
 
                         $config_file = "$($app_path)/$($site_path)/$($source_dir)/mkdocs.yml"
-                        if ($site_config -contains 'config_file') {
+                        if ($site_config.ContainsKey('config_file')) {
                             $config_file = "$($app_path)/$($site_path)/$($source_dir)/$($site_config.('config_file'))"
                         }
 
                         $theme = "mkdocs"
-                        if ($site_config -contains 'theme') {
+                        if ($site_config.ContainsKey('theme')) {
                             $theme = $site_config.('theme')
                         }
 
