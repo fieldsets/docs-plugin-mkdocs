@@ -25,11 +25,14 @@ $app_path = '/usr/local/fieldsets/apps'
 $log_path = "/usr/local/fieldsets/data/logs/plugins"
 Set-Location -Path $app_path
 if ($preimport) {
+
     if (Test-Path -Path "$($plugin_path)/config.json") {
         $config = Get-Content -Raw -Path "$($plugin_path)/config.json" | ConvertFrom-Json -AsHashtable
+        Write-Output $config
         if ($config.ContainsKey('sites')) {
             $site_configs = $config['sites']
             foreach ($site_config in $site_configs) {
+                Write-Output $site_config
                 if ($site_config.ContainsKey('app_path')) {
                     $site_path = $site_config.('app_path')
                     Set-Location -Path "$($app_path)/$($site_path)"
@@ -55,9 +58,9 @@ if ($preimport) {
                             $build_options = $site_config.('options')
                         }
 
-                        $config_file = "$($app_path)/$($site_path)/$($source_dir)/mkdocs.yml"
+                        $config_file = "$($app_path)/$($site_path)/mkdocs.yml"
                         if ($site_config.ContainsKey('config_file')) {
-                            $config_file = "$($app_path)/$($site_path)/$($source_dir)/$($site_config.('config_file'))"
+                            $config_file = "$($app_path)/$($site_path)/$($site_config.('config_file'))"
                         }
 
                         $theme = "mkdocs"
@@ -65,14 +68,11 @@ if ($preimport) {
                             $theme = $site_config.('theme')
                         }
 
-                        $processOptions = @{
-                            Filepath ="mkdocs"
-                            ArgumentList = "build --config-file '$($config_file)' --theme '$($theme)' --site-dir '$($app_path)/$($site_path)/$($build_dir)' $($build_options)"
-                            RedirectStandardInput = "/dev/null"
-                            RedirectStandardOutput = "$($log_path)/$($plugin_token)/$($plugin_token).log"
-                            RedirectStandardError = "$($log_path)/$($plugin_token)/$($plugin_token).error.log"
-                        }
-                        Start-Process @processOptions
+                        $python3 = (Get-Command python3).Source
+                        $mkdocs = (Get-Command mkdocs).Source
+
+                        & "$($python3)" "$($mkdocs) build --config-file '$($config_file)' --theme '$($theme)' --site-dir '$($app_path)/$($site_path)/$($build_dir)' $($build_options)"
+
                     }
                 }
             }

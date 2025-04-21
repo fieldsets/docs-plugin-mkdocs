@@ -18,6 +18,9 @@ if ($plugin.ContainsKey('token') -and ($null -ne $plugin['token'])) {
 $app_path = '/usr/local/fieldsets/apps'
 $log_path = "/usr/local/fieldsets/data/logs/plugins"
 
+$python3 = (Get-Command python3).Source
+$mkdocs = (Get-Command mkdocs).Source
+
 Set-Location -Path $app_path
 # You can utilize a custom config.json file
 if (Test-Path -Path "$($plugin_path)/config.json") {
@@ -29,14 +32,7 @@ if (Test-Path -Path "$($plugin_path)/config.json") {
             if ($site_config.ContainsKey('app_path')) {
                 $site_path = $site_config.('app_path')
                 if (!(Test-Path -Path "$($app_path)/$($site_path)")) {
-                    $processOptions = @{
-                        Filepath ="mkdocs"
-                        ArgumentList = "new $($site_path)"
-                        RedirectStandardInput = "/dev/null"
-                        RedirectStandardOutput = "$($log_path)/$($plugin_token)/$($plugin_token).log"
-                        RedirectStandardError = "$($log_path)/$($plugin_token)/$($plugin_token).error.log"
-                    }
-                    Start-Process @processOptions
+                    & "$($python3)" "$($mkdocs) new $($site_path)"
                 }
                 Set-Location -Path "$($app_path)/$($site_path)"
                 $config_file = 'mkdocs.yml'
@@ -51,7 +47,7 @@ if (Test-Path -Path "$($plugin_path)/config.json") {
                     }
                     "site_name: $($site_name)`n" | Out-File -FilePath "$($app_path)/$($site_path)/$($config_file)" -Append -Encoding utf8
 
-                    $site_url = "localhost:8000/$($site_path)"
+                    $site_url = "0.0.0.0:8000/$($site_path)"
                     if ($site_config.ContainsKey('host')) {
                         if ($site_config.ContainsKey('uri')) {
                             $site_url = "$($site_config.('host'))/$($site_config.('uri'))"
@@ -59,7 +55,7 @@ if (Test-Path -Path "$($plugin_path)/config.json") {
                             $site_url = "$($site_config.('host'))/$($site_path)"
                         }
                     }
-                    "site_url: $($site_url)`n" | Out-File -FilePath "$($app_path)/$($site_path)/$($config_file)" -Append -Encoding utf8
+                    "site_url: http://$($site_url)`n" | Out-File -FilePath "$($app_path)/$($site_path)/$($config_file)" -Append -Encoding utf8
 
                     $docs_dir = "$($app_path)/$($site_path)/docs"
                     if ($site_config.ContainsKey('source_path')) {
