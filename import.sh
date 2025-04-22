@@ -23,16 +23,17 @@ if ($plugin.ContainsKey('token') -and ($null -ne $plugin['token'])) {
 
 $app_path = '/usr/local/fieldsets/apps'
 $log_path = "/usr/local/fieldsets/data/logs/plugins"
+$log_file = "$($log_path)/$($plugin_token)/$($plugin_token).log"
+$error_log_file = "$($log_path)/$($plugin_token)/$($plugin_token).error.log"
 Set-Location -Path $app_path
 if ($preimport) {
 
     if (Test-Path -Path "$($plugin_path)/config.json") {
         $config = Get-Content -Raw -Path "$($plugin_path)/config.json" | ConvertFrom-Json -AsHashtable
-        Write-Output $config
+
         if ($config.ContainsKey('sites')) {
             $site_configs = $config['sites']
             foreach ($site_config in $site_configs) {
-                Write-Output $site_config
                 if ($site_config.ContainsKey('app_path')) {
                     $site_path = $site_config.('app_path')
                     Set-Location -Path "$($app_path)/$($site_path)"
@@ -71,8 +72,7 @@ if ($preimport) {
                         $python3 = (Get-Command python3).Source
                         $mkdocs = (Get-Command mkdocs).Source
 
-                        & "$($python3)" "$($mkdocs) build --config-file '$($config_file)' --theme '$($theme)' --site-dir '$($app_path)/$($site_path)/$($build_dir)' $($build_options)"
-
+                        Start-Process -FilePath $python3 -ArgumentList "$($mkdocs) build --config-file $($config_file) --theme $($theme) --site-dir $($app_path)/$($site_path)/$($build_dir) $($build_options)" -RedirectStandardError $error_log_file -RedirectStandardOutput $log_file
                     }
                 }
             }
