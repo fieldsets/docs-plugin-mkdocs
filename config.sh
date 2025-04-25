@@ -18,7 +18,6 @@ if ($plugin.ContainsKey('token') -and ($null -ne $plugin['token'])) {
 $app_path = '/usr/local/fieldsets/apps'
 
 $log_file = "$($log_path)/$($plugin_token)/$($plugin_token).log"
-$error_log_file = "$($log_path)/$($plugin_token)/$($plugin_token).error.log"
 
 $python3 = (Get-Command python3).Source
 $mkdocs = (Get-Command mkdocs).Source
@@ -34,7 +33,15 @@ if (Test-Path -Path "$($plugin_path)/config.json") {
             if ($site_config.ContainsKey('app_path')) {
                 $site_path = $site_config.('app_path')
                 if (!(Test-Path -Path "$($app_path)/$($site_path)")) {
-                    Start-Process -FilePath $python3 -ArgumentList "$($mkdocs) new $($site_path)" -RedirectStandardError $error_log_file -RedirectStandardOutput $log_file
+                    $processOptions = @{
+                        Filepath = $python3
+                        ArgumentList = "$($mkdocs) new $($site_path)"
+                        RedirectStandardInput = "/dev/null"
+                        RedirectStandardError = "/dev/tty"
+                        RedirectStandardOutput = $log_file
+                    }
+
+                    Start-Process @processOptions
                 }
                 Set-Location -Path "$($app_path)/$($site_path)"
                 $config_file = 'mkdocs.yml'

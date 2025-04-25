@@ -13,13 +13,12 @@ if ($plugin.ContainsKey('token') -and ($null -ne $plugin['token'])) {
     $plugin_token = $plugin['token']
 }
 
-Write-Output "## Fieldsets Plugin Boilerplate Run Phase ##"
+Write-Output "## Fieldsets MkDocs Documentation Plugin Run Phase ##"
 Write-Output "$($plugin_path)"
 
 $app_path = '/usr/local/fieldsets/apps'
 $log_path = "/usr/local/fieldsets/data/logs/plugins"
 $log_file = "$($log_path)/$($plugin_token)/$($plugin_token).log"
-$error_log_file = "$($log_path)/$($plugin_token)/$($plugin_token).error.log"
 Set-Location -Path $app_path
 if (Test-Path -Path "$($plugin_path)/config.json") {
     $config = Get-Content -Raw -Path "$($plugin_path)/config.json" | ConvertFrom-Json -AsHashtable
@@ -40,13 +39,8 @@ if (Test-Path -Path "$($plugin_path)/config.json") {
                     $build_dir = $site_config.('build_path')
                 }
 
-                # Create build directory if it doesn't exist
-                if (!(Test-Path -Path "$($app_path)/$($site_path)/$($build_dir)")) {
-                    New-Item -Path "$($app_path)/$($site_path)" -Name "$($build_dir)" -ItemType Directory | Out-Null
-                }
-
-                # Only buuild if source path exists
-                if (Test-Path -Path "$($app_path)/$($site_path)/$($source_dir)") {
+                # Only run if build path exists
+                if (Test-Path -Path "$($app_path)/$($site_path)/$($build_dir)") {
                     $build_options = '--use-directory-urls'
                     if ($site_config.ContainsKey('options')) {
                         $build_options = $site_config.('options')
@@ -74,8 +68,15 @@ if (Test-Path -Path "$($plugin_path)/config.json") {
                     $python3 = (Get-Command python3).Source
                     $mkdocs = (Get-Command mkdocs).Source
                     $nohup = (Get-Command nohup).Source
+                    $processOptions = @{
+                        Filepath = $nohup
+                        ArgumentList = "$($python3) $($mkdocs) serve --config-file $($config_file) --theme $($theme) --dev-addr $($site_url) --watch $($app_path)/$($site_path)/$($source_dir) $($build_options)"
+                        RedirectStandardInput = "/dev/null"
+                        RedirectStandardError = "/dev/tty"
+                        RedirectStandardOutput = $log_file
+                    }
 
-                    Start-Process -FilePath $nohup -ArgumentList "$($python3) $($mkdocs) serve --config-file $($config_file) --theme $($theme) --dev-addr $($site_url) --watch $($app_path)/$($site_path)/$($source_dir) $($build_options)" -RedirectStandardError $error_log_file -RedirectStandardOutput $log_file &
+                    Start-Process @processOptions
                 }
             }
         }

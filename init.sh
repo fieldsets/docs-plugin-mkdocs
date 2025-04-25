@@ -21,9 +21,6 @@ $log_path = "/usr/local/fieldsets/data/logs/plugins"
 if (!(Test-Path -Path "$($log_path)/$($plugin_token)/")) {
     New-Item -Path "$($log_path)" -Name "$($plugin_token)" -ItemType Directory | Out-Null
 }
-if (!(Test-Path -Path "$($log_path)/$($plugin_token)/$($plugin_token).error.log")) {
-    New-Item -Path "$($log_path)/$($plugin_token)" -Name "$($plugin_token).error.log" -ItemType File | Out-Null
-}
 if (!(Test-Path -Path "$($log_path)/$($plugin_token)/$($plugin_token).log")) {
     New-Item -Path "$($log_path)/$($plugin_token)" -Name "$($plugin_token).log" -ItemType File | Out-Null
 }
