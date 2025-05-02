@@ -1,9 +1,9 @@
 {
     "name": "Fieldsets MkDocs Documentation Plugin",
     "token": "docs-plugin-mkdocs",
-    "url": "https://github.com/fieldsets/plugin-boilerplate",
+    "url": "https://github.com/fieldsets/docs-plugin-mkdocs",
     "version": "1.0.0",
     "license": "AGPL-3.0",
-    "priority": "99",
+    "priority": "90",
     "enabled": true
 }
